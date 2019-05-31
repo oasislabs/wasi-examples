@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int closeVoting(FILE *);
 
@@ -20,7 +21,7 @@ int main(int argc, char **argv)
 
     // set owner, state.
     fd = fopen(owner_path, "wb");
-    fwrite('1', 1, 1, fd);
+    fprintf(fd, "1");
     fwrite(sender, strlen(sender), 1, fd);
     fclose(fd);
 
@@ -47,13 +48,13 @@ int main(int argc, char **argv)
   {
     // if closed, return winning candidate.
     int winner;
-    fscanf(fd, "%d", winner);
+    fscanf(fd, "%d", &winner);
     printf("%d", winner);
     return 0;
   }
 
   int vote;
-  scanf("%d", vote);
+  scanf("%d", &vote);
   // check if owner is closing poll.
   if (vote == -1)
   {
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
     // no such candidate.
     return 1;
   }
-  fscanf(fd, "%d", vote);
+  fscanf(fd, "%d", &vote);
   fclose(fd);
 
   vote++;
@@ -133,7 +134,7 @@ int closeVoting(FILE *fd)
     {
       break;
     }
-    fscanf(fd, "%d", vote);
+    fscanf(fd, "%d", &vote);
     fclose(fd);
     if (vote > max_vote)
     {
@@ -146,7 +147,7 @@ int closeVoting(FILE *fd)
   // update owner with winner.
   strncpy(candidate_path + home_len, "/owner\0", 7);
   fd = fopen(candidate_path, "wb");
-  fwrite('0', 1, 1, fd);
+  fprintf(fd, "0");
   fprintf(fd, "%d\0", max_idx);
   fclose(fd);
 
