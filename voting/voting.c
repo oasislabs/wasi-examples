@@ -2,21 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-int closeVoting(FILE *);
+int closeVoting(FILE*);
 
-int main(int argc, char **argv)
-{
-  char *home = getenv("HOME");
+int main(int argc, char** argv) {
+  char* home = getenv("HOME");
   size_t home_len = strlen(home);
-  char *sender = getenv("SENDER");
+  char* sender = getenv("SENDER");
   size_t sender_len = strlen(sender);
-  char *owner_path = malloc(home_len + sender_len + 2); // "/owner\0"
+  char* owner_path = malloc(home_len + sender_len + 2);  // "/owner\0"
   strncpy(owner_path, home, home_len);
   strncpy(owner_path + home_len, "/owner\0", 7);
 
-  FILE *fd = fopen(owner_path, "rb");
-  if (fd == NULL)
-  {
+  FILE* fd = fopen(owner_path, "rb");
+  if (fd == NULL) {
     // constructor.
 
     // set owner, state.
@@ -28,11 +26,10 @@ int main(int argc, char **argv)
     // set candidates.
     int num_candidates;
     scanf("%d", &num_candidates);
-    char *candidate_path = malloc(home_len + 15); // "/<number>\0"
+    char* candidate_path = malloc(home_len + 15);  // "/<number>\0"
     strncpy(candidate_path, home, home_len);
     candidate_path[home_len] = '/';
-    for (; num_candidates >= 0; num_candidates--)
-    {
+    for (; num_candidates >= 0; num_candidates--) {
       snprintf(candidate_path + home_len + 1, 14, "%d\0", num_candidates);
       fd = fopen(candidate_path, "wb");
       fprintf(fd, "%d\0", 0);
@@ -44,8 +41,7 @@ int main(int argc, char **argv)
 
   // check state.
   char state = fgetc(fd);
-  if (state != '1')
-  {
+  if (state != '1') {
     // if closed, return winning candidate.
     int winner;
     fscanf(fd, "%d", &winner);
@@ -56,24 +52,21 @@ int main(int argc, char **argv)
   int vote;
   scanf("%d", &vote);
   // check if owner is closing poll.
-  if (vote == -1)
-  {
+  if (vote == -1) {
     return closeVoting(fd);
   }
 
   // has this sender already voted?
   strncpy(owner_path + home_len + 1, sender, sender_len);
   fd = fopen(owner_path, "rb");
-  if (fd != NULL)
-  {
+  if (fd != NULL) {
     // already voted.
     return 1;
   }
 
   // cast a vote.
   fd = fopen(owner_path, "wb");
-  if (fd == NULL)
-  {
+  if (fd == NULL) {
     // write failed.
     return 2;
   }
@@ -83,8 +76,7 @@ int main(int argc, char **argv)
   // increment the vote count for the candidate.
   snprintf(owner_path + home_len + 1, 14, "%d\0", vote);
   fd = fopen(owner_path, "rb");
-  if (fd == NULL)
-  {
+  if (fd == NULL) {
     // no such candidate.
     return 1;
   }
@@ -100,12 +92,11 @@ int main(int argc, char **argv)
   return 0;
 }
 
-int closeVoting(FILE *fd)
-{
-  char *home = getenv("HOME");
+int closeVoting(FILE* fd) {
+  char* home = getenv("HOME");
   size_t home_len = strlen(home);
-  char *sender = getenv("SENDER");
-  char *candidate_path = malloc(home_len + 15); // "/<number>\0"
+  char* sender = getenv("SENDER");
+  char* candidate_path = malloc(home_len + 15);  // "/<number>\0"
 
   int vote;
   int idx;
@@ -113,10 +104,8 @@ int closeVoting(FILE *fd)
   int max_vote = 0;
 
   // check ownership.
-  for (vote = 0; vote < strlen(sender); vote++)
-  {
-    if (getc(fd) != sender[vote])
-    {
+  for (vote = 0; vote < strlen(sender); vote++) {
+    if (getc(fd) != sender[vote]) {
       return 1;
     }
   }
@@ -126,18 +115,15 @@ int closeVoting(FILE *fd)
   vote = 0;
   strncpy(candidate_path, home, home_len);
   candidate_path[home_len] = '/';
-  while (1)
-  {
+  while (1) {
     snprintf(candidate_path + home_len + 1, 14, "%d\0", idx);
     fd = fopen(candidate_path, "rb");
-    if (fd == NULL)
-    {
+    if (fd == NULL) {
       break;
     }
     fscanf(fd, "%d", &vote);
     fclose(fd);
-    if (vote > max_vote)
-    {
+    if (vote > max_vote) {
       max_vote = vote;
       max_idx = idx;
     }
