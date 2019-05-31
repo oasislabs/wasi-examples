@@ -1,5 +1,5 @@
 .PHONY: all
-all: rot13.wasm
+all: voting.wasm
 
 %.wasm.full: %.c
 	clang $< -g -o $@
